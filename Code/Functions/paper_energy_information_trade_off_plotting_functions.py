@@ -15,6 +15,7 @@ import plotly.graph_objs as go
 import plotly.io as pio
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MaxNLocator
+from matplotlib.patches import Patch
     
 from matplotlib.lines import Line2D
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -179,10 +180,12 @@ def fig_Pareto_optimality_Padamsey(results_mean_spiking_trials, exp_data=None, r
     axA=fig.add_subplot(G_top[0, 0], projection='3d')
     pf.plot_grid_3D_matplotlib(results=results_mean_spiking_trials, value_key=None, lower_threshold=0.45, upper_threshold=None, colorbar_mode=False, interpolation=True, all_trajectories=None, legend_mode=False, axes_mode=False, exp_data=exp_data, plot_exp_stems=True, plot_ellipsoids=True, elev=20, azim=130, ax=axA) #dpi=1000,
     panel_letter(axA, "A", size=fontsizes['panelletterfontsize'], dx=0.0, dy=-0.06)
+    axA.text2D(0.6, 0.96, "Empirical Pareto-front", transform=axA.transAxes, ha='center', va='top', fontsize=fontsizes.get('subheadingfontsize', 11))
     
     axB=fig.add_subplot(G_top[0, 1], projection='3d')
     pf.plot_grid_3D_matplotlib(results=results_mean_spiking_trials, value_key="OSI", lower_threshold=0.01, upper_threshold=None, colorbar_mode=False, interpolation=False, all_trajectories=None, legend_mode=False, axes_mode=False, exp_data=None, plot_exp_stems=True, plot_ellipsoids=True, elev=20, azim=130, ax=axB) #dpi=1000,
     panel_letter(axB, "B", size=fontsizes['panelletterfontsize'], dx=0.0, dy=-0.06)
+    axB.text2D(0.6, 0.96, "Predicted Pareto-front", transform=axB.transAxes, ha='center', va='top', fontsize=fontsizes.get('subheadingfontsize', 11))
     
     axC=fig.add_subplot(G_top[0, 2], projection='3d')
     # plot colobar outside the plot
@@ -194,6 +197,7 @@ def fig_Pareto_optimality_Padamsey(results_mean_spiking_trials, exp_data=None, r
     #caxC = inset_axes(axC, width="4%", height="70%", loc="center left", bbox_to_anchor=(1.08, 0., 1, 1), bbox_transform=axC.transAxes, borderpad=0)
     pf.plot_grid_3D_matplotlib(results=results_mean_spiking_trials, value_key="OSI", lower_threshold=0.45, upper_threshold=None, colorbar_mode=True, interpolation=True, all_trajectories=None, legend_mode=False, axes_mode=False, exp_data=exp_data, plot_exp_stems=True, plot_ellipsoids=True, elev=20, azim=130, cax=caxC, ax=axC) #dpi=1000,
     panel_letter(axC, "C", size=fontsizes['panelletterfontsize'], dx=0.0, dy=-0.06)
+    axC.text2D(0.65, 0.96, "Joint performance space", transform=axC.transAxes, ha='center', va='top', fontsize=fontsizes.get('subheadingfontsize', 11))
     
     # smaller space
     #axspace=axes[3:6]
@@ -269,6 +273,7 @@ def fig_Pareto_optimality_Zeldenrust(results_analysis_exc, results_analysis_inh,
     #render_3Dfig_to_ax(figA, axA)
     axA = fig.add_subplot(row1[0, 0], projection='3d')
     pf.plot_grid_and_exp_3D_matplotlib(grid_data_exc=results_PC_exc, grid_data_inh=None, exp_data_exc=results_analysis_PCA_analyzed_exc, exp_data_inh=None, value_key='MI', normalization_mode="normalized_axis", grid_axes=('b_ad', 'tau_w_ad', 'a_ad'), interpolation=True, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, elev=20, azim=140, ax=axA)
+    #pf.plot_grid_and_exp_3D_matplotlib(grid_data_exc=results_PC_exc, grid_data_inh=None, exp_data_exc=results_analysis_PCA_analyzed_exc, exp_data_inh=None, value_key='MI', normalization_mode="normalized_axis", interpolation=False, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, elev=20, azim=230, ax=axA)
     panel_letter(axA, "A", size=fontsizes['panelletterfontsize'], dx=0.0, dy=-0.06)
     
     # B
@@ -276,6 +281,7 @@ def fig_Pareto_optimality_Zeldenrust(results_analysis_exc, results_analysis_inh,
     #render_3Dfig_to_ax(figB, axB)
     axB = fig.add_subplot(row1[0, 1], projection='3d')
     pf.plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=results_PC_inh, exp_data_exc=None, exp_data_inh=results_analysis_PCA_analyzed_inh, value_key='MI', normalization_mode="normalized_axis", grid_axes=('R_m', 'tau_w_ad', 'V_thresh'), interpolation=True, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, elev=20, azim=110, ax=axB)
+    #pf.plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=results_PC_inh, exp_data_exc=None, exp_data_inh=results_analysis_PCA_analyzed_inh, value_key='MI', normalization_mode="normalized_axis", interpolation=True, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, elev=20, azim=130, ax=axB)
     panel_letter(axB, "B", size=fontsizes['panelletterfontsize'], dx=0.0, dy=-0.06)
     
     # C: excitatory Pareto
@@ -446,13 +452,14 @@ def fig_Pareto_optimality_Zeldenrust(results_analysis_exc, results_analysis_inh,
     #print('norm. const. $MI$ per energy exp exc: ' + str(round(z_max_exp_inh,4)) + ' bits/($10^{9}$ ATP/s)') 
         
 # Fig. 3
-def fig_energy_budget(E_CTR, E_FR, r_post_fit, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,6), savename_mode=True):
+def fig_energy_budget(E_CTR, E_FR, r_post_fit, E_tot_minmax, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,6), savename_mode=True):
     # create energy budget figure
     
     # input
     # E_CTR = [E_tot_CTR, E_HK_CTR, E_RP_CTR, E_AP_CTR, E_ST_CTR, E_glu_CTR, E_Ca_CTR]
     # E_FR  = [E_tot_FR,  E_HK_FR,  E_RP_FR,  E_AP_FR,  E_ST_FR,  E_glu_FR,  E_Ca_FR]
     # r_post_fit is array of firing rates (Hz)
+    # E_tot_minmax is a list of the min max values of E_tot
     # colors are the colors for color_CTR, color_FR
     # fontsizes is a dictionary of used font sizes
     # figsize is the figure size
@@ -462,7 +469,37 @@ def fig_energy_budget(E_CTR, E_FR, r_post_fit, colors=['black', 'red'], fontsize
     
     E_tot_CTR, E_HK_CTR, E_RP_CTR, E_AP_CTR, E_ST_CTR, E_glu_CTR, E_Ca_CTR = E_CTR
     E_tot_FR,  E_HK_FR,  E_RP_FR,  E_AP_FR,  E_ST_FR,  E_glu_FR,  E_Ca_FR  = E_FR
+    
+    # unpack minimum and maximum total-energy estimates
+    E_tot_CTR_min, E_tot_CTR_max = E_tot_minmax[0]
+    E_tot_FR_min, E_tot_FR_max = E_tot_minmax[1]
+    E_tot_CTR_min = np.asarray(E_tot_CTR_min)
+    E_tot_CTR_max = np.asarray(E_tot_CTR_max)
+    E_tot_FR_min = np.asarray(E_tot_FR_min)
+    E_tot_FR_max = np.asarray(E_tot_FR_max)
+    
+    """
+    # calculate uncertainty bars 
+    r_post_errorbars = np.arange(0.5, np.max(r_post_fit) + 0.01, 1.5)
 
+    # interpolate nominal, minimum and maximum energy values at every full Hz
+    E_tot_CTR_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_CTR)
+    E_tot_CTR_min_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_CTR_min)
+    E_tot_CTR_max_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_CTR_max)
+
+    E_tot_FR_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_FR)
+    E_tot_FR_min_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_FR_min)
+    E_tot_FR_max_errorbars = np.interp(r_post_errorbars, r_post_fit, E_tot_FR_max)
+
+    # calculate asymmetric min-max errors in 10^9 ATP/s
+    yerr_CTR = np.vstack([E_tot_CTR_errorbars - E_tot_CTR_min_errorbars, E_tot_CTR_max_errorbars - E_tot_CTR_errorbars]) / 1e9
+    yerr_FR = np.vstack([E_tot_FR_errorbars - E_tot_FR_min_errorbars, E_tot_FR_max_errorbars - E_tot_FR_errorbars]) / 1e9
+
+    # transform nominal values to 10^9 ATP/s
+    E_tot_CTR_errorbars = E_tot_CTR_errorbars / 1e9
+    E_tot_FR_errorbars = E_tot_FR_errorbars / 1e9
+    """
+    
     r_post_optimum = 4.0  # Hz
     idx_optimum = (np.abs(r_post_fit - r_post_optimum)).argmin()
 
@@ -503,11 +540,17 @@ def fig_energy_budget(E_CTR, E_FR, r_post_fit, colors=['black', 'red'], fontsize
     
     # panel A: CTR stackplot
     pf.plot_energy_stackplot(np.asarray(E_tot_CTR)/1e9, np.asarray(E_HK_CTR)/1e9, np.asarray(E_RP_CTR)/1e9, np.asarray(E_AP_CTR)/1e9, np.asarray(E_ST_CTR)/1e9, np.asarray(E_glu_CTR)/1e9, np.asarray(E_Ca_CTR)/1e9, np.asarray(r_post_fit), description_CTR, legend_labels, r_post_optimum, r_post_optimum_percentages=True, inverted=False, legend_pos=False, y_limit=y_limit, y_label=y_label, color_r_post_optimum=color_CTR, ax=axA)
+    #axA.errorbar(r_post_errorbars, E_tot_CTR_errorbars, yerr=yerr_CTR, fmt='o', color='black', ecolor='black', markersize=1.5, elinewidth=0.8, capsize=2.0, capthick=0.8, zorder=10)
+    axA.plot(r_post_fit, E_tot_CTR_min / 1e9, linestyle='--', color=color_CTR,linewidth=1.0, zorder=10)
+    axA.plot(r_post_fit, E_tot_CTR_max / 1e9, linestyle='--', color=color_CTR,linewidth=1.0, zorder=10)
     axA.set_title('CTR', fontweight='bold', color=color_CTR, fontsize=fontsizes['panelletterfontsize']*0.8)
     axA.text(-0.12, 1.04, "A", transform=axA.transAxes, fontsize=fontsizes['panelletterfontsize'], fontweight='bold', ha='left', va='bottom')
     
     # panel B: FR stackplot (inverted x-axis, legend here)
     pf.plot_energy_stackplot(np.asarray(E_tot_FR)/1e9, np.asarray(E_HK_FR)/1e9, np.asarray(E_RP_FR)/1e9, np.asarray(E_AP_FR)/1e9, np.asarray(E_ST_FR)/1e9, np.asarray(E_glu_FR)/1e9, np.asarray(E_Ca_FR)/1e9, np.asarray(r_post_fit), description_FR, legend_labels, r_post_optimum, r_post_optimum_percentages=True, inverted=True, legend_pos=legend_pos, y_limit=y_limit, y_label=y_label, color_r_post_optimum=color_FR, ax=axB)
+    #axB.errorbar(r_post_errorbars, E_tot_FR_errorbars, yerr=yerr_FR, fmt='o', color='black', ecolor='black', markersize=1.5, elinewidth=0.8, capsize=2.0, capthick=0.8, zorder=10)
+    axB.plot(r_post_fit, E_tot_FR_min / 1e9, linestyle='--', color=color_FR,linewidth=1.0, zorder=10)
+    axB.plot(r_post_fit, E_tot_FR_max / 1e9, linestyle='--', color=color_FR,linewidth=1.0, zorder=10)
     axB.set_title('FR', fontweight='bold', color=color_FR, fontsize=fontsizes['panelletterfontsize']*0.8)
     #ppf.panel_letter(axB, "B", size=fontsizes['panelletterfontsize'])
     #axB.text(-0.01, 1.04, "B", transform=axB.transAxes, fontsize=fontsizes['panelletterfontsize'], fontweight='bold', ha='left', va='bottom')
@@ -1465,6 +1508,124 @@ def fig_energy_budget_comparison(colors=['#57e7ff', '#9357ff', '#ff1d1d'], fonts
         plt.show()
         
 # Fig. S9
+def fig_energy_budget_minmax_bars(E_CTR, E_FR, E_CTR_minmax, E_FR_minmax, r_post_fit, r_post_values=[1.0, 4.0, 10.0], figsize=(6.2,2.8), savename_mode=True, fontsizes={'panelletterfontsize': 15}):
+    # plot stacked bar plots of main, minimum and maximum energy budgets for CTR and FR
+    # input
+    # E_CTR is the main CTR energy budget [E_tot, E_HK, E_RP, E_AP, E_ST, E_glu, E_Ca]
+    # E_FR is the main FR energy budget [E_tot, E_HK, E_RP, E_AP, E_ST, E_glu, E_Ca]
+    # E_CTR_minmax contains minimum and maximum CTR estimates for every energy contributor
+    # E_FR_minmax contains minimum and maximum FR estimates for every energy contributor
+    # r_post_fit is the array of fitted postsynaptic firing rates
+    # r_post_values are the firing rates displayed in the individual panels
+    # figsize determines the figsize
+    # savename_mode decides whether the figure is saved or not
+    # fontsizes is a dictionary of used font sizes
+    
+    # output
+    # figure showing minimum, main and maximum component-wise energy budgets for CTR and FR
+
+    r_post_fit = np.asarray(r_post_fit)
+    E_CTR = [np.asarray(E) for E in E_CTR]
+    E_FR = [np.asarray(E) for E in E_FR]
+    E_CTR_minmax = [[np.asarray(E[0]), np.asarray(E[1])] for E in E_CTR_minmax]
+    E_FR_minmax = [[np.asarray(E[0]), np.asarray(E[1])] for E in E_FR_minmax]
+
+    # use same component order and colors as energy-budget figure
+    component_indices = [1, 2, 3, 5, 6, 4]
+    component_labels = ['House keeping', 'Resting potential\n(reversal of Na\u207A)', 'Action potential\n(reversal of Na\u207A)', 'Synaptic transmission\n(glutamate recycling)', 'Synaptic transmission\n(reversal of presyn Ca\u00B2\u207A)', 'Synaptic transmission\n(reversal of Na\u207A)']
+    component_colors = ['#808080', '#285F8B', '#D91A8F', '#017376', '#018F9B', '#018F76']
+
+    # determine common y-axis limit from maximal budgets
+    max_total = 0
+    for r_post in r_post_values:
+        max_total = max(max_total, np.interp(r_post, r_post_fit, E_CTR_minmax[0][1]), np.interp(r_post, r_post_fit, E_FR_minmax[0][1]))
+    y_limit = 1.06 * max_total / 1e9
+
+    # initialize figure
+    fig, axes = plt.subplots(1, len(r_post_values), figsize=figsize, sharey=True, gridspec_kw={'wspace': 0.08})
+    if len(r_post_values) == 1:
+        axes = [axes]
+
+    # compact bar positions
+    width = 0.10
+    CTR_positions = [-0.10, 0.00, 0.10]
+    FR_positions = [0.30, 0.40, 0.50]
+
+    for panel_idx, (ax, r_post) in enumerate(zip(axes, r_post_values)):
+
+        # loop over CTR and FR
+        for positions, main_set, minmax_set in zip([CTR_positions, FR_positions], [E_CTR, E_FR], [E_CTR_minmax, E_FR_minmax]):
+
+            # minimum, main and maximum component values
+            values_min = [np.interp(r_post, r_post_fit, minmax_set[idx][0]) / 1e9 for idx in component_indices]
+            values_main = [np.interp(r_post, r_post_fit, main_set[idx]) / 1e9 for idx in component_indices]
+            values_max = [np.interp(r_post, r_post_fit, minmax_set[idx][1]) / 1e9 for idx in component_indices]
+
+            # minimum stacked bar
+            bottom = 0
+            for value, color in zip(values_min, component_colors):
+                ax.bar(positions[0], value, width=width, bottom=bottom, color=color, alpha=0.8, edgecolor='none', linewidth=0, zorder=2)
+                bottom += value
+
+            # main stacked bar
+            bottom = 0
+            for value, color in zip(values_main, component_colors):
+                ax.bar(positions[1], value, width=width, bottom=bottom, color=color, alpha=1.0, edgecolor='none', linewidth=0, zorder=3)
+                bottom += value
+
+            # maximum stacked bar
+            bottom = 0
+            for value, color in zip(values_max, component_colors):
+                ax.bar(positions[2], value, width=width, bottom=bottom, color=color, alpha=0.8, edgecolor='none', linewidth=0, zorder=2)
+                bottom += value
+
+        # labels underneath individual bars
+        for x_pos, label in zip(CTR_positions + FR_positions, ['min', 'main', 'max', 'min', 'main', 'max']):
+            ax.text(x_pos, -0.045, label, transform=ax.get_xaxis_transform(), fontsize=mpl.rcParams['legend.fontsize'], ha='center', va='top')
+            
+
+        # CTR and FR labels
+        ax.set_xticks([0.00, 0.40])
+        ax.set_xticklabels(['CTR', 'FR'])
+        ax.get_xticklabels()[0].set_color('black')
+        ax.get_xticklabels()[1].set_color('red')
+        ax.tick_params(axis='x', pad=15)
+
+        # panel formatting
+        ax.set_xlim(-0.18, 0.58)
+        ax.set_ylim(0, y_limit)
+        ax.text(np.mean(CTR_positions + FR_positions), -0.18, f'{r_post:g} Hz', transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=fontsizes['panelletterfontsize']*0.8)
+        
+        #ax.set_title(f'{r_post:g} Hz')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=4, min_n_ticks=3))
+        #ax.text(-0.14, 1.02, chr(65 + panel_idx), transform=ax.transAxes, fontsize=fontsizes['panelletterfontsize'], fontweight='bold', ha='left', va='bottom')
+
+    # only show y-axis on first panel
+    axes[0].set_ylabel('Energy consumption / ($10^9$ ATP/s)')
+    for ax in axes[1:]:
+        ax.spines['left'].set_visible(False)
+        ax.tick_params(axis='y', left=False, labelleft=False)
+
+    # component legend in upper-left empty region of panel A
+    component_handles = [Patch(facecolor=color, edgecolor='none', label=label) for color, label in zip(component_colors, component_labels)]
+    fig.legend(handles=component_handles, loc='upper left', bbox_to_anchor=(0.14, 0.9), ncol=3, frameon=False, handlelength=1.6, handletextpad=0.5, columnspacing=1.2, labelspacing=0.4)
+    #fig.legend(handles=component_handles, loc='upper left', bbox_to_anchor=(0.14, 0.86), ncol=3, frameon=False, handlelength=1.6, handletextpad=0.5, columnspacing=1.2, labelspacing=0.4)
+    
+    plt.tight_layout()
+
+
+    if savename_mode is True:
+        savepath = "../Figures/paper_energy_information_trade_off/fig_S9_energy_budget_minmax_bars.pdf"
+        plt.savefig(savepath, bbox_inches='tight', transparent=True)
+        plt.savefig(savepath.replace('.pdf', '.png'), dpi=600, bbox_inches='tight', transparent=True)
+        fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
+        
+    plt.show()
+    return fig, axes
+
+#Fig. S10
 def fig_membrane_noise(baseline_signals, cleaned_signals, T, fs, results_single_runs_membrane_noise_CTR, results_single_runs_membrane_noise_FR, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,6), savename_mode=True):
     # create information figure
     # input
@@ -1537,12 +1698,12 @@ def fig_membrane_noise(baseline_signals, cleaned_signals, T, fs, results_single_
     
     plt.tight_layout()
     if savename_mode is True:
-        savepath="../Figures/paper_energy_information_trade_off/fig_S9_membrane_noise.pdf"
+        savepath="../Figures/paper_energy_information_trade_off/fig_S10_membrane_noise.pdf"
         plt.savefig(savepath, bbox_inches='tight', transparent=True)
         plt.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
         
-# Fig. S10
+# Fig. S11
 def fig_V_gap_additional(results_multiple_CTR_FR_runs_V_gap_AdExp, results_V_gap_variable_E_L, results_V_gap_variable_V_thresh, results_single_run_E_L_AdExp, results_single_run_V_thresh_AdExp, colors=['black', 'red', 'darkcyan', 'darkviolet'], fontsizes={'panelletterfontsize': 15}, figsize=(7,7), savename_mode=True):
     # create information figure
     # input
@@ -1604,13 +1765,13 @@ def fig_V_gap_additional(results_multiple_CTR_FR_runs_V_gap_AdExp, results_V_gap
     
     plt.tight_layout()
     if savename_mode is True:
-        savepath="../Figures/paper_energy_information_trade_off/fig_S10_V_gap_additional.pdf"
+        savepath="../Figures/paper_energy_information_trade_off/fig_S11_V_gap_additional.pdf"
         plt.savefig(savepath, bbox_inches='tight', transparent=True)
         plt.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True)
         plt.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
         
 
-# Fig. S11
+# Fig. S12
 def fig_synaptic_input_Zeldenrust(t_stim, w_e_0, r_e, spike_times_e, spike_times_i, N_e_noise, T, tau_switch, colors=['#2e7d32', '#f9a825', '#f9a825', 'lightskyblue'], fontsizes={'panelletterfontsize': 15}, figsize=(5,8), savename_mode=True):
     # create figure on synaptic input structure and stimulation protocol for Zeldenrust input
     # input
@@ -1686,7 +1847,7 @@ def fig_synaptic_input_Zeldenrust(t_stim, w_e_0, r_e, spike_times_e, spike_times
     
     #plt.tight_layout()
     if savename_mode is True:
-        savepath="../Figures/paper_energy_information_trade_off/fig_S11_synaptic_input_Zeldenrust.pdf"
+        savepath="../Figures/paper_energy_information_trade_off/fig_S12_synaptic_input_Zeldenrust.pdf"
         fig.savefig(savepath, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True) 
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
@@ -1694,7 +1855,7 @@ def fig_synaptic_input_Zeldenrust(t_stim, w_e_0, r_e, spike_times_e, spike_times
     plt.show()
     
     
-# Fig. S12 
+# Fig. S13
 def fig_cornerplot_with_voltage_trace(means, stds, maps, samples, t_vecs, V_ms, spike_times_posts, r_posts, param_names, param_units, t_ms=None, V_m_mean=None, V_m_samples=None, description=None, savename_mode=True):
     # create corner plot of variable size with experimental vs simulated voltage trace & spike times in the top row
     
@@ -1775,7 +1936,7 @@ def fig_cornerplot_with_voltage_trace(means, stds, maps, samples, t_vecs, V_ms, 
     plt.tight_layout()
     
     if savename_mode is True:
-        savepath="../Figures/paper_energy_information_trade_off/fig_S12_SBI_cornerplot_Zeldenrust.pdf"
+        savepath="../Figures/paper_energy_information_trade_off/fig_S13_SBI_cornerplot_Zeldenrust.pdf"
         fig.savefig(savepath, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True) 
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
@@ -1784,8 +1945,8 @@ def fig_cornerplot_with_voltage_trace(means, stds, maps, samples, t_vecs, V_ms, 
     #if savename:
         #plt.savefig(f"../Figures/{savename}.pdf", bbox_inches='tight')
     plt.show()
-    
-    
+
+#Fig. S14    
 def fig_cornerplot_correlations_Zeldenrust(results_exc, results_inh, names_list, description=None, colors=['red', 'blue'], savename_mode=True):
     # create corner plot of variable size with correlations
     
@@ -1822,7 +1983,7 @@ def fig_cornerplot_correlations_Zeldenrust(results_exc, results_inh, names_list,
         fig.suptitle(f"{description}")
     plt.tight_layout()
     if savename_mode is True:
-        savepath="../Figures/paper_energy_information_trade_off/fig_S13_data_correlation_Zeldenrust.pdf"
+        savepath="../Figures/paper_energy_information_trade_off/fig_S14_data_correlation_Zeldenrust.pdf"
         fig.savefig(savepath, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True) 
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
@@ -1832,6 +1993,7 @@ def fig_cornerplot_correlations_Zeldenrust(results_exc, results_inh, names_list,
         #plt.savefig(f"../Figures/{savename}_correlation_cornerplot.pdf", bbox_inches='tight')
     plt.show()
     
+#Fig. S15
 def fig_3x3_pc_loadings_bars(pca_all, pca_exc, pca_inh, feature_names, colors=['grey', 'coral', 'darkcyan'], description=False, figsize=(7,10), savename_mode=True, fontsizes={'panelletterfontsize': 15}):
     # plot horizontal bar plots of PCA loadings for first 3 PCs in 3 rows (all/exc/inh)
     # input
@@ -1882,15 +2044,13 @@ def fig_3x3_pc_loadings_bars(pca_all, pca_exc, pca_inh, feature_names, colors=['
     plt.tight_layout()
 
     if savename_mode is True:
-        savepath = "../Figures/paper_energy_information_trade_off/fig_S14_PC_loadings_full.pdf"
+        savepath = "../Figures/paper_energy_information_trade_off/fig_S15_PC_loadings_full.pdf"
         plt.savefig(savepath, bbox_inches='tight', transparent=True)
         plt.savefig(savepath.replace('.pdf', '.png'), dpi=120, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
         
     plt.show()
     return fig, axes
-
-    
 
 ############################## bin ##############################
 

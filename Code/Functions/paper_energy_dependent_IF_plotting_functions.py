@@ -433,7 +433,7 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
 
     if savename is not False:
         mpl.rcParams['pdf.compression'] = 0
-        savepath = f"../Figures/PhD_thesis/{savename}.pdf"
+        savepath = f"../Figures/paper_energy_dependent_IF/{savename}.pdf"
         fig.savefig(savepath, bbox_inches='tight', transparent=False)
         fig.savefig(savepath.replace('.pdf', '.png'), dpi=600, bbox_inches='tight', transparent=True)
         fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
@@ -443,7 +443,9 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
     return fig, ax
 
 # Fig. synapse- vs. excitability-first model
-def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=("o", "D"), fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
+
+# Fig. synapse- vs. excitability-first model
+def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, results_FR_synapse_first=None, results_FR_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=("o", "D"), fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
     # creates a three-panel figure comparing the synapse-first and excitability-first models
     # input
     # time_FR_PD is the synapse-first simulation time array in s
@@ -452,6 +454,8 @@ def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, 
     # E_cons_dyn_FR_PD_reverse is the normalized excitability-first consumed energy array
     # results_mean_FR_trajectory_synapse_first is the averaged results dictionary for the synapse-first trajectory
     # results_mean_FR_trajectory_excitability_first is the averaged results dictionary for the excitability-first trajectory
+    # results_FR_trajectory_synapse_first is the full results dictionary for the synapse-first trajectory
+    # results_FR_trajectory_excitability_first is the full results dictionary for the excitability-first trajectory
     # E_target_ATP is the energy normalization factor in units of 1e9 ATP/s
     # downsample_factor keeps every nth sample for faster plotting
     # colors contains the colors of the synapse-first and excitability-first trajectories
@@ -483,7 +487,7 @@ def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, 
 
     # B
     #pf.plot_energy_vs_OSI_two_FR_trajectories(results_mean_FR_trajectory_synapse_first, results_mean_FR_trajectory_excitability_first, colors=colors, labels=labels, markers=markers, show_legend=False, ax=axB)
-    pf.plot_OSI_per_energy_two_FR_trajectories(results_mean_FR_trajectory_synapse_first, results_mean_FR_trajectory_excitability_first, OSI_per_energy="OSI_per_energy", colors=colors, labels=labels, markers=("o", "D"), show_legend=False, ax=axB) # , s=42, linewidth=1.4
+    pf.plot_OSI_per_energy_two_FR_trajectories(results_mean_FR_trajectory_synapse_first, results_mean_FR_trajectory_excitability_first, results_FR_synapse_first, results_FR_excitability_first, OSI_per_energy="OSI_per_energy", colors=colors, labels=labels, markers=("o", "D"), show_legend=False, ax=axB) # , s=42, linewidth=1.4
     panel_letter(axB, "B", size=fontsizes["panelletterfontsize"])
     
     # C
@@ -504,7 +508,7 @@ def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, 
 
     if savename_mode is True:
         mpl.rcParams["pdf.compression"] = 0
-        savepath = "../Figures/PhD_thesis/4_results/fig_synapse_vs_excitability_first.pdf"
+        savepath = "../Figures/paper_energy_dependent_IF/3_results/fig_synapse_vs_excitability_first.pdf"
         fig.savefig(savepath, bbox_inches="tight", transparent=False)
         fig.savefig(savepath.replace(".pdf", ".png"), dpi=600, bbox_inches="tight", transparent=True)
         fig.savefig(savepath.replace(".pdf", ".tiff"), dpi=600, bbox_inches="tight", transparent=False, pil_kwargs={"compression": "tiff_lzw"})
@@ -514,3 +518,107 @@ def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, 
     ax = {"A": axA, "B": axB, "C": axC}
 
     return fig, ax
+
+
+# Fig. natural scenes
+def fig_natural_scenes(firing_statistics, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,2.3), savename_mode=True):
+    # create natural scenes firing statistics figure
+    # input
+    # firing_statistics is a dictionary containing firing rate, ISI variance and CV_ISI values for CTR and FR
+    # colors are the colors for color_CTR and color_FR
+    # fontsizes is a dictionary of used font sizes
+    # figsize determines the figsize
+    # savename_mode decides whether the figure is saved or not
+    # output
+    # fig is the created matplotlib figure
+    # stats_df is a pandas dataframe containing the statistical results for all plotted quantities
+    
+    fig = plt.figure(figsize=figsize)
+    gs = GridSpec(1, 3, figure=fig, width_ratios=[1.0, 1.0, 1.0], wspace=0.45)
+
+    axA = fig.add_subplot(gs[0, 0])
+    axB = fig.add_subplot(gs[0, 1])
+    axC = fig.add_subplot(gs[0, 2])
+
+    # get data
+    if "firing_rate_movie_CTR" in firing_statistics:
+        firing_rate_movie_CTR = firing_statistics["firing_rate_movie_CTR"]
+        firing_rate_movie_FR = firing_statistics["firing_rate_movie_FR"]
+    else:
+        firing_rate_movie_CTR = firing_statistics["mean_firing_rate_movie_CTR"]
+        firing_rate_movie_FR = firing_statistics["mean_firing_rate_movie_FR"]
+
+    if "ISI_var_movie_CTR" in firing_statistics:
+        ISI_var_movie_CTR = firing_statistics["ISI_var_movie_CTR"]
+        ISI_var_movie_FR = firing_statistics["ISI_var_movie_FR"]
+    else:
+        ISI_var_movie_CTR = firing_statistics["mean_ISI_var_movie_CTR"]
+        ISI_var_movie_FR = firing_statistics["mean_ISI_var_movie_FR"]
+
+    if "CV_ISI_movie_CTR" in firing_statistics:
+        CV_ISI_movie_CTR = firing_statistics["CV_ISI_movie_CTR"]
+        CV_ISI_movie_FR = firing_statistics["CV_ISI_movie_FR"]
+    else:
+        CV_ISI_movie_CTR = firing_statistics["mean_CV_ISI_movie_CTR"]
+        CV_ISI_movie_FR = firing_statistics["mean_CV_ISI_movie_FR"]
+
+    # A
+    stat_A = pf.plot_boxplot(firing_rate_movie_CTR, firing_rate_movie_FR, 'firing rate (Hz)', 'Firing rate', colors=colors, ax=axA)
+    stat_A["metric"] = "firing_rate_movie"
+    panel_letter(axA, "A", size=fontsizes['panelletterfontsize'])
+
+    # B
+    stat_B = pf.plot_boxplot(ISI_var_movie_CTR, ISI_var_movie_FR, 'ISI variance (s$^2$)', 'ISI variance', colors=colors, ax=axB)
+    stat_B["metric"] = "ISI_var_movie"
+    panel_letter(axB, "B", size=fontsizes['panelletterfontsize'])
+
+    # C
+    stat_C = pf.plot_boxplot(CV_ISI_movie_CTR, CV_ISI_movie_FR, '$CV_{\mathrm{ISI}}$', 'ISI irregularity', colors=colors, ax=axC)
+    stat_C["metric"] = "CV_ISI_movie"
+    panel_letter(axC, "C", size=fontsizes['panelletterfontsize'])
+
+
+    if savename_mode is True:
+        mpl.rcParams['pdf.compression'] = 0
+        savepath="../Figures/paper_energy_dependent_IF/3_results/fig_natural_scenes_variance.pdf"
+        fig.savefig(savepath, bbox_inches='tight', transparent=False)
+        fig.savefig(savepath.replace('.pdf', '.png'), dpi=600, bbox_inches='tight', transparent=True)
+        fig.savefig(savepath.replace('.pdf', '.tiff'), dpi=600, bbox_inches='tight', transparent=False, pil_kwargs={"compression": "tiff_lzw"})
+
+    plt.show()
+
+    return fig
+
+# Fig. 3D fitted plane
+def fig_3D_fitted_plane(fig, results_mean_spiking_trials, value_key='OSI_per_energy', lower_threshold=0.2, upper_threshold=None, use_translated_w_scale=True, plane_resolution=20, plane_opacity=0.9, print_results=True, name='OSI plane fit', figsize=(7,10), fontsizes={'panelletterfontsize': 15}, savename_mode=True):
+    # create 3D figure with fitted plane added to existing Plotly figure
+    # input
+    # fig is an existing Plotly figure containing the 3D parameter-space plot
+    # results_mean_spiking_trials is a dictionary containing simulation results for different R_m, E_L and w_scale combinations
+    # value_key is the key of the result value used for thresholding before plane fitting
+    # lower_threshold is the lower threshold for selecting points used for plane fitting
+    # upper_threshold is the upper threshold for selecting points used for plane fitting
+    # use_translated_w_scale decides whether w_scale is translated into mean excitatory synaptic weights
+    # plane_resolution is the number of grid points used for plotting the fitted plane
+    # plane_opacity is the opacity of the fitted plane
+    # print_results decides whether the fitted plane parameters are printed
+    # name is the name of the fitted plane trace
+    # figsize determines the figure size for saving in inches
+    # fontsizes is a dictionary of used font sizes
+    # savename_mode decides whether the figure is saved or not
+    # output
+    # fig is the Plotly figure with the fitted plane added
+    # plane_fit is a dictionary containing the plane parameters, fit quality and fitted data points
+    
+    fig, plane_fit = pf.add_plane_fit_to_fig(fig, results_mean_spiking_trials, value_key=value_key, lower_threshold=lower_threshold, upper_threshold=upper_threshold, use_translated_w_scale=use_translated_w_scale, plane_resolution=plane_resolution, plane_opacity=plane_opacity, print_results=print_results, name=name)
+    fig.show()
+    
+    if savename_mode is True:
+        savepath="../Figures/paper_energy_dependent_IF/5_supplements/fig_3D_fitted_plane.html"
+        fig.write_html(savepath)
+        fig.write_image(savepath.replace('.html', '.pdf'), scale=3)
+        fig.write_image(savepath.replace('.html', '.png'), scale=3)
+        #fig.write_image(savepath.replace('.html', '.svg'), width=int(figsize[0] * 100), height=int(figsize[1] * 100), scale=3)
+    
+    return fig, plane_fit
+

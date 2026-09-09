@@ -935,8 +935,13 @@ def plot_raster(spike_times_e, spike_times_i, N_e_noise, w_e=False, title_mode=T
     # plot excitatory spikes in red
     for neuron_idx, spike_times in spike_times_e.items():
         alpha = alphas[neuron_idx] if w_e is not False else 1.0
-        ax.scatter(spike_times/ms/1000, [neuron_idx] * len(spike_times), color=color_input_exc, s=markersize, alpha=alpha) 
 
+        # for N_e_noise noise synapses use lighter red
+        if N_e_noise is not None and neuron_idx < N_e_noise:
+            alpha *= 0.25
+        
+        ax.scatter(spike_times/ms/1000, [neuron_idx] * len(spike_times), color=color_input_exc, s=markersize, alpha=alpha)
+    
     # plot inhibitory spikes in blue (stacked above excitatory)
     offset_inh = N_e  # offset to stack inhibitory neurons above excitatory
     for neuron_idx, spike_times in spike_times_i.items():
@@ -1036,7 +1041,7 @@ def plot_cumulative_weights(w_e, description, color='blue', figsize=(5, 4), ax=N
     
     half_strength_idx = np.argmax(weighted_cdf >= 0.5) # add a vertical line at 50% strength
     ax.axvline(sorted_weights[half_strength_idx], color='gray', linestyle='--')
-    ax.text(sorted_weights[half_strength_idx]*1.9, 0.45, f"50% of $w_{{e,tot}}$ by \n{round((1-cdf[half_strength_idx])*100)}% of syn.")
+    ax.text(sorted_weights[half_strength_idx]*1.9, 0.45, f"50% of $w_{{e,tot}}$ by \n top {round((1-cdf[half_strength_idx])*100)}% of syn.")
     ax.set_xlabel("mean exc weight (nS)") # $⟨w_{syn,e}⟩$ 
     ax.set_ylabel("cum. density frac.")#"cum. density fraction"
     ax.legend(frameon=False, loc="lower right")
@@ -1991,7 +1996,7 @@ def plot_phase_plane_Vw(I_syn_mean_CTR, I_syn_mean_FR, g_L_CTR, g_L_FR, E_L_CTR,
             distance_labels.append(f'distance FR = {dist_FR:.3f} nA')
 
     # mark threshold
-    ax.axvline(V_thresh, color='k', linestyle=':', linewidth=1)
+    ax.axvline(V_thresh, color='k', linestyle='--', linewidth=1)
     ax.set_xlim(V_min, V_max)
     y_min, y_max = ax.get_ylim()
     ax.set_ylim(y_min, y_max)
@@ -4909,16 +4914,21 @@ def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cm
 
 ############################ video plotting functions ############################
 
-def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, revealing=False, eye=dict(x=-2.2, y=2.2, z=0.8)):
-    # create a rotating video of the 3D grid around the z-axis which optionally animates a dot along a trajectory with the option to reveal the trajectory progressively
+
+def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, revealing=False, results=None, trajectory_value_key='OSI_per_energy', trajectory_cmin=None, trajectory_cmax=None, eye=dict(x=-2.2, y=2.2, z=0.8)):
+    # create a rotating video of the 3D grid around the z-axis which optionally animates a dot along a trajectory
+    # if revealing=True, newly revealed trajectory segments are color-coded by trajectory_value_key
 
     # input
-    # fig is the the 3D figure to rotate created by plotly
+    # fig is the 3D figure to rotate created by plotly
     # savename is the desired file name
     # duration is the duration of the video in seconds
     # fps are the frames per second of the video
     # trajectory is a list of tuples of (R_m, E_L, w_scale) coordinates
-    # revealing if provided makes the trajectory being revealed step-by-step
+    # revealing progressively reveals the trajectory
+    # results is the simulation results dictionary used to obtain trajectory values from coordinates
+    # trajectory_value_key is the result key used to color the revealed trajectory
+    # trajectory_cmin and trajectory_cmax optionally define the trajectory color scale
     # eye is the dictionary of the initial camera position
 
     # output
@@ -4928,22 +4938,48 @@ def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, re
     output_path = f"../Figures/{savename}_frames"
     os.makedirs(output_path, exist_ok=True)
 
-    num_frames = duration * fps # total number of frames
-    angles = np.linspace(0, 360 if trajectory is None else 180, num_frames, endpoint=False) # rotation angles (in degrees)
+    num_frames = duration * fps
+    angles = np.linspace(0, 360 if trajectory is None else 180, num_frames, endpoint=False)
 
     # prepare trajectory if provided
     if trajectory is not None:
         traj_R_m, traj_E_L, traj_w_scale = zip(*trajectory)
         num_points = len(trajectory)
-        dot_positions = [
-            trajectory[min(int(i * (num_points - 1) / (num_frames - 1)), num_points - 1)]
-            for i in range(num_frames)]
-    
+        dot_positions = [trajectory[min(int(i * (num_points - 1) / (num_frames - 1)), num_points - 1)] for i in range(num_frames)]
     else:
         dot_positions = [None] * num_frames
 
+    # prepare color coding of trajectory from results
+    trajectory_values = None
+    cmap_traj = None
+    norm_traj = None
+
+    if trajectory is not None and results is not None and trajectory_value_key is not None:
+        idx_value = build_index_by_RmEL(results, trajectory_value_key)
+
+        trajectory_values = []
+        for R_m, E_L, w_scale in trajectory:
+            _, value = get_entry_closest_wscale(idx_value, R_m, E_L, w_scale, trajectory_value_key)
+            trajectory_values.append(np.nan if value is None else float(value))
+
+        trajectory_values = np.asarray(trajectory_values, dtype=float)
+
+        # use complete simulation grid for common color normalization
+        _, _, _, _, _, all_values = parse_results_grid(results, trajectory_value_key)
+        finite_values = all_values[np.isfinite(all_values)]
+
+        if trajectory_cmin is None:
+            trajectory_cmin = float(np.nanmin(finite_values))
+
+        if trajectory_cmax is None:
+            trajectory_cmax = float(np.nanmax(finite_values))
+
+        norm_traj = Normalize(vmin=trajectory_cmin, vmax=trajectory_cmax, clip=True)
+        cmap_traj = plt.get_cmap('viridis')
+
     # generate and save each frame
     frame_files = []
+
     for i, angle in enumerate(angles):
         fig_frame = deepcopy(fig)
 
@@ -4952,52 +4988,61 @@ def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, re
             dot_R_m, dot_E_L, dot_w_scale = dot_positions[i]
 
             if revealing:
-                # reveal trajectory up to the current point
+                # reveal trajectory segment-by-segment
                 if visible_idx > 0:
-                    fig_frame.add_trace(go.Scatter3d(
-                        x=traj_R_m[:visible_idx + 1],
-                        y=traj_E_L[:visible_idx + 1],
-                        z=w_scale_to_w_e_syn(traj_w_scale[:visible_idx + 1]), 
-                        mode='lines',
-                        line=dict(color='green', width=10),
-                        name='Trajectory', 
-                        showlegend=False))
-                    
+                    for j in range(visible_idx):
+                        x_seg = [traj_R_m[j], traj_R_m[j + 1]]
+                        y_seg = [traj_E_L[j], traj_E_L[j + 1]]
+                        z_seg = w_scale_to_w_e_syn([traj_w_scale[j], traj_w_scale[j + 1]])
+
+                        # fallback if no color information is available
+                        seg_color = 'green'
+
+                        # color newly reached segment according to trajectory value at destination point
+                        if trajectory_values is not None and norm_traj is not None and cmap_traj is not None:
+                            value = trajectory_values[j + 1]
+
+                            if np.isfinite(value):
+                                rgba = to_rgba(cmap_traj(norm_traj(value)))
+                                seg_color = f'rgb({int(rgba[0] * 255)},{int(rgba[1] * 255)},{int(rgba[2] * 255)})'
+
+                        fig_frame.add_trace(go.Scatter3d(x=x_seg, y=y_seg, z=z_seg, mode='lines', line=dict(color=seg_color, width=10), name='Trajectory', showlegend=False, hoverinfo='skip'))
+
             else:
                 # full trajectory visible from start
-                fig_frame.add_trace(go.Scatter3d(
-                    x=traj_R_m,
-                    y=traj_E_L,
-                    z=w_scale_to_w_e_syn(traj_w_scale),
-                    mode='lines',
-                    line=dict(color='green', width=10),
-                    name='Trajectory', 
-                    showlegend=False))
-                
-            # add the moving dot
-            fig_frame.add_trace(go.Scatter3d(
-                x=[dot_R_m],
-                y=[dot_E_L],
-                z=[w_scale_to_w_e_syn(dot_w_scale)],
-                mode='markers',
-                marker=dict(size=20, color='green'),
-                name='Moving Dot', 
-                showlegend=False))
+                fig_frame.add_trace(go.Scatter3d(x=traj_R_m, y=traj_E_L, z=w_scale_to_w_e_syn(traj_w_scale), mode='lines', line=dict(color='green', width=10), name='Trajectory', showlegend=False))
 
+            # add moving dot
+            if trajectory_values is not None and norm_traj is not None and cmap_traj is not None:
+                value = trajectory_values[visible_idx]
+                if np.isfinite(value):
+                    rgba = to_rgba(cmap_traj(norm_traj(value)))
+                    dot_color = f'rgb({int(rgba[0] * 255)},{int(rgba[1] * 255)},{int(rgba[2] * 255)})'
+            
+            fig_frame.add_trace(go.Scatter3d(x=[dot_R_m], y=[dot_E_L], z=[w_scale_to_w_e_syn([dot_w_scale])[0]], mode='markers', marker=dict(size=14, color=dot_color), name='Moving Dot', showlegend=False))
+        
+        """
         # rotate camera
         fig_frame.update_layout(scene_camera=dict(
             eye=dict(x=eye['x'] * np.cos(np.radians(angle)),
                      y=eye['y'] * np.sin(np.radians(angle)),
                      z=eye['z'])))
+        """
+        # rotate camera around z-axis while preserving the initial viewing angle
+        theta0 = np.arctan2(eye['y'], eye['x'])
+        radius_xy = np.sqrt(eye['x']**2 + eye['y']**2)
+        theta = theta0 + np.radians(angle)
 
+        fig_frame.update_layout(scene_camera=dict(eye=dict(x=radius_xy * np.cos(theta), y=radius_xy * np.sin(theta), z=eye['z']), up=dict(x=0, y=0, z=1)))
 
         # save frame
         frame_path = os.path.join(output_path, f"frame_{i:04d}.png")
         fig_frame.write_image(frame_path, width=1920, height=1080)
         frame_files.append(frame_path)
 
-    # combine frames into a GIF
+    # combine frames into GIF
     video_path = f"../Figures/{savename}.gif"
+
     with imageio.get_writer(video_path, mode="I", duration=1 / fps) as writer:
         for frame_file in frame_files:
             image = imageio.imread(frame_file)
@@ -5006,6 +5051,7 @@ def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, re
     # clean up
     shutil.rmtree(output_path)
     print(f"Video saved at {video_path}")
+    
 
 """
 def create_video_iso_E_tot_OSI(results, E_tot_array, fps=3, savename='video_iso_E_tot_OSI', cmin=None, cmax=None, exp_data=None):
@@ -5057,6 +5103,7 @@ def create_video_iso_E_tot_OSI(results, E_tot_array, fps=3, savename='video_iso_
 
     print(f"Video saved at: {gif_path}")
     """
+
     
 def create_video_iso_E_tot_OSI_dynamic_exp(results, E_tot_array, fps=3, savename='video_iso_E_tot_OSI', cmin=None, cmax=None, original_exp_data=None, plot_exp_stems=False, circled_values=False, base_font_size=40, eye=dict(x=1.8, y=1.8, z=1.3)):
     # create a video that gradually reveals experimental data points as their corresponding grid point's E_tot exceeds the current iso-energy surface value
@@ -6496,12 +6543,14 @@ def plot_E_cons_synapse_vs_excitability_first(time_FR_PD, time_FR_PD_reverse, E_
 
     return fig, ax
 
-def plot_OSI_per_energy_two_FR_trajectories(results_mean_FR_trajectory_synapse_first, results_mean_FR_trajectory_excitability_first, OSI_per_energy="OSI_per_energy", colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=("o", "D"), figsize=(3.4, 2.4), s=42, linewidth=1.4, show_legend=True, savename=None, ax=None):
+def plot_OSI_per_energy_two_FR_trajectories(results_mean_FR_trajectory_synapse_first, results_mean_FR_trajectory_excitability_first, results_FR_trajectory_synapse_first, results_FR_trajectory_excitability_first, OSI_per_energy="OSI_per_energy", colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=("o", "D"), figsize=(3.4, 2.4), s=42, linewidth=1.4, show_legend=True, savename=None, ax=None):
     # plots two OSI per energy trajectories
     
     # input
     # results_mean_FR_trajectory_synapse_first is the averaged results dictionary for the synapse-first trajectory
     # results_mean_FR_trajectory_excitability_first is the averaged results dictionary for the excitability-first trajectory
+    # results_FR_trajectory_synapse_first is the full results dictionary for the synapse-first trajectory
+    # results_FR_trajectory_excitability_first is the full results dictionary for the excitability-first trajectory
     # OSI_per_energy is the dictionary key for OSI per energy in 1/(ATP/s)
     # colors contains the final colors for the synapse-first and excitability-first trajectories
     # labels contains the legend labels for the synapse-first and excitability-first trajectories
@@ -6522,9 +6571,33 @@ def plot_OSI_per_energy_two_FR_trajectories(results_mean_FR_trajectory_synapse_f
     else:
         fig = ax.figure
 
-    rel_time=np.linspace(0,1,len(results_mean_FR_trajectory_synapse_first["OSI_per_energy"]))
-    ax.plot(rel_time, results_mean_FR_trajectory_synapse_first["OSI_per_energy"], color=colors[0], label=labels[0])
-    ax.plot(rel_time, results_mean_FR_trajectory_excitability_first["OSI_per_energy"], color=colors[1], label=labels[1])
+    def get_sem_per_trajectory_point(results_full, key):
+        trajectory_indices = np.asarray(results_full["trajectory_index"])
+        values_all = np.asarray(results_full[key], dtype=float)
+        unique_indices = np.unique(trajectory_indices)
+
+        sem_list = []
+        for idx in unique_indices:
+            values = values_all[trajectory_indices == idx]
+            if len(values) > 1:
+                sem = np.std(values, ddof=1) / np.sqrt(len(values))
+            else:
+                sem = 0.0
+            sem_list.append(sem)
+
+        return np.asarray(sem_list)
+
+    rel_time = np.linspace(0, 1, len(results_mean_FR_trajectory_synapse_first[OSI_per_energy]))
+
+    y_synapse_first = np.asarray(results_mean_FR_trajectory_synapse_first[OSI_per_energy])
+    y_excitability_first = np.asarray(results_mean_FR_trajectory_excitability_first[OSI_per_energy])
+
+    yerr_synapse_first = get_sem_per_trajectory_point(results_FR_trajectory_synapse_first, OSI_per_energy)
+    yerr_excitability_first = get_sem_per_trajectory_point(results_FR_trajectory_excitability_first, OSI_per_energy)
+
+    ax.errorbar(rel_time, y_synapse_first, yerr=yerr_synapse_first, color=colors[0], label=labels[0], fmt='-', capsize=2, linewidth=linewidth)
+    ax.errorbar(rel_time, y_excitability_first, yerr=yerr_excitability_first, color=colors[1], label=labels[1], fmt='-', capsize=2, linewidth=linewidth)
+
     ax.set_xticks([0, 0.5, 1])
     ax.yaxis.set_major_locator(MaxNLocator(nbins=3, min_n_ticks=2))
     ax.set_xlabel("relative time")

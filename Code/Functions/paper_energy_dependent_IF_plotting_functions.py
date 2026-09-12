@@ -445,7 +445,7 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
 # Fig. synapse- vs. excitability-first model
 
 # Fig. synapse- vs. excitability-first model
-def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, results_FR_synapse_first=None, results_FR_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=("o", "D"), fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
+def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, results_FR_synapse_first=None, results_FR_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=markers, fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
     # creates a three-panel figure comparing the synapse-first and excitability-first models
     # input
     # time_FR_PD is the synapse-first simulation time array in s

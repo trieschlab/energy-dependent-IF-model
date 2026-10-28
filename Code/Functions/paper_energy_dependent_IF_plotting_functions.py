@@ -157,7 +157,7 @@ def render_3Dfig_to_ax(fig, ax, scale=2, trim_pad=1):
 ############################ plotting functions ############################
 
 # Fig. energy-dependent IF
-def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dyn, R_m_dyn, rho_E_target, r_target, r_Ca_var_smooth=None, r_var_target=None, var_CV_mode="var", y_mode_V_rest=None, exp_w=None, exp_V_rest=None, exp_R_m=None, downsample_factor=1, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,4), savename="4_results/fig_energy_IF_CTR_FR"):
+def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dyn, R_m_dyn, rho_E_target, r_target, r_Ca_var_smooth=None, r_var_target=None, var_CV_mode="var", y_mode_V_rest=None, exp_w=None, exp_V_rest=None, exp_R_m=None, excess_mode=False, downsample_factor=1, colors=['black', 'red'], fontsizes={'panelletterfontsize': 15}, figsize=(7,4), savename="4_results/fig_energy_IF_CTR_FR"):
     # create energy-dependent integrate-and-fire model summary figure for CTR and FR
     # input
     # time is a list of simulation-time arrays in s for CTR and FR
@@ -175,6 +175,7 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
     # exp_w is an optional list of experimentally measured relative synaptic weights
     # exp_V_rest is an optional list of experimentally measured resting potentials in mV
     # exp_R_m is an optional list of experimentally measured membrane resistances in MOhm
+    # excess_mode is an option mode for plotting the energy excess scenario
     # downsample_factor keeps every nth sample for faster plotting
     # colors are the colors for CTR and FR
     # fontsizes is a dictionary of used font sizes
@@ -329,7 +330,8 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
     ax[panel_energy].axhline(rho_E_target, color="gray", linestyle="--", linewidth=1, label="target")
     ax[panel_energy].set_ylim(rho_E_ylim_min, rho_E_ylim_max)
     ax[panel_energy].text(x_text, rho_E_max + 0.05, r"$\rho_E > 1$: energy excess regime", ha="left", va="center")
-    ax[panel_energy].text(x_text, rho_E_min - 0.05, r"$\rho_E < 1$: energy scarcity regime", ha="left", va="center")
+    if excess_mode is False:
+        ax[panel_energy].text(x_text, rho_E_min - 0.05, r"$\rho_E < 1$: energy scarcity regime", ha="left", va="center")
     ax[panel_energy].set_ylabel(r"$\rho_E$")
     ax[panel_energy].set_title(r"Energy balance $\rho_E(t)$")
     ax[panel_energy].legend(loc="center right", facecolor='white', edgecolor='none', framealpha=1.0)
@@ -389,6 +391,9 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
     # dynamic resting potential
     for i in range(2):
         ax[panel_v].plot(time[i], V_rest_dyn[i], label=labels[i], color=colors[i])
+        
+    if excess_mode is True: 
+        ax[panel_v].set_ylim(V_rest_dyn[0][0] - 5, V_rest_dyn[0][0] + 5)
     
     if y_mode_V_rest == "blocked":
         ax[panel_v].set_ylim(-73, -65)
@@ -442,10 +447,9 @@ def fig_energy_IF_CTR_FR(time, rho_E_smooth, r_Ca_smooth, w_syn_e_dyn, V_rest_dy
 
     return fig, ax
 
-# Fig. synapse- vs. excitability-first model
 
 # Fig. synapse- vs. excitability-first model
-def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, results_FR_synapse_first=None, results_FR_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=markers, fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
+def fig_synapse_vs_excitability_first(time_FR_PD=None, time_FR_PD_reverse=None, E_cons_dyn_FR_PD=None, E_cons_dyn_FR_PD_reverse=None, results_mean_FR_trajectory_synapse_first=None, results_mean_FR_trajectory_excitability_first=None, results_FR_synapse_first=None, results_FR_excitability_first=None, E_target_ATP=1.6, downsample_factor=100, colors=("red", "darkred"), labels=("FR synapse-first", "FR excitability-first"), markers=('o','o'), fontsizes={"panelletterfontsize": 15}, figsize=(7,1.5), savename_mode=True):
     # creates a three-panel figure comparing the synapse-first and excitability-first models
     # input
     # time_FR_PD is the synapse-first simulation time array in s

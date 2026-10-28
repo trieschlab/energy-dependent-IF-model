@@ -1765,13 +1765,13 @@ def plot_tuning_curves(tuning_curves_CTR, tuning_curves_FR, label_CTR, label_FR,
         standard_error_tuning_curve_FR = standard_error_tuning_curve_FR
     
     if normalized == False: # raw tuning curve
-        ax.errorbar(orientation_list, mean_tuning_curve_CTR, standard_error_tuning_curve_CTR, label = label_CTR, color = color_CTR,fmt='-o', capsize=3)
-        ax.errorbar(orientation_list, mean_tuning_curve_FR, standard_error_tuning_curve_FR, label = label_FR, color = color_FR,fmt='-o', capsize=3)
+        ax.errorbar(orientation_list, mean_tuning_curve_CTR, standard_error_tuning_curve_CTR, label = label_CTR, color = color_CTR, fmt='-o', markersize=3, capsize=3)
+        ax.errorbar(orientation_list, mean_tuning_curve_FR, standard_error_tuning_curve_FR, label = label_FR, color = color_FR, fmt='-o', markersize=3, capsize=3)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=3, min_n_ticks=3))
     
     if normalized == True: # normalized tuning curve
-        ax.errorbar(orientation_list, mean_tuning_curve_CTR/max(mean_tuning_curve_CTR), standard_error_tuning_curve_CTR, label = label_CTR, color = color_CTR, fmt='-o', capsize=3)
-        ax.errorbar(orientation_list, mean_tuning_curve_FR/max(mean_tuning_curve_FR), standard_error_tuning_curve_FR, label = label_FR, color = color_FR,fmt='-o', capsize=3)
+        ax.errorbar(orientation_list, mean_tuning_curve_CTR/max(mean_tuning_curve_CTR), standard_error_tuning_curve_CTR, label = label_CTR, color = color_CTR, fmt='-o', markersize=3, capsize=3)
+        ax.errorbar(orientation_list, mean_tuning_curve_FR/max(mean_tuning_curve_FR), standard_error_tuning_curve_FR, label = label_FR, color = color_FR,fmt='-o', markersize=3, capsize=3)
         ax.set_ylim(-0.01,1.05)
         ax.set_yticks([0, 0.5, 1])
     
@@ -2854,7 +2854,7 @@ def fit_func_legend_text_plot(fit_func):
 
 
 
-def plot_correlation(x, y, x_label, y_label, z=None, z_label=None, fit_func=None, initial_guess=None, params_fit=None, highlight_points=None, fit_func_highlight=None, initial_guess_highlight=None, params_fit_highlight=None, results_grid_point_to_exp_data=None, inverted_x=None, xlim=None, log_log=False, colors=['black', 'red', 'yellow'], show_colorbar=True, plot_mode='correlation', legend_mode=True, figsize=(8, 5), ax=None, savename=None): 
+def plot_correlation(x, y, x_label, y_label, z=None, z_label=None, fit_func=None, initial_guess=None, params_fit=None, highlight_points=None, fit_func_highlight=None, initial_guess_highlight=None, params_fit_highlight=None, results_grid_point_to_exp_data=None, inverted_x=None, xlim=None, log_log=False, colors=['black', 'red', 'yellow'], cmap='viridis', show_colorbar=True, plot_mode='correlation', legend_mode=True, figsize=(8, 5), ax=None, savename=None): 
     # plot correlation between two variables with optional fit and color coding
 
     # input
@@ -2880,6 +2880,7 @@ def plot_correlation(x, y, x_label, y_label, z=None, z_label=None, fit_func=None
     # xlim is an optional tuple of the x-axis limits
     # log_log s a boolean to enable loglog scaling if desired
     # colors sets the colors of the CTR, FR & highlight points & fit
+    # cmap is the color map
     # show_colorbar decides whether to display colorbar or not
     # plot_mode is the mode of x & y labels
     # legend_mode decides if legend should be displayed or not
@@ -2902,7 +2903,7 @@ def plot_correlation(x, y, x_label, y_label, z=None, z_label=None, fit_func=None
     
     # create scatter plot of x & y data with optional color code z
     #scatter = ax.scatter(x, y, s=50, alpha=0.3, color='dimgray' if z is None else None, c=z if z is not None else None, cmap='viridis' if z is not None else None)
-    ax.scatter(x, y, s=50, alpha=0.3, color='dimgray' if z is None else None, c=z if z is not None else None, cmap='viridis' if z is not None else None)
+    ax.scatter(x, y, s=50, alpha=0.3, color='dimgray' if z is None else None, c=z if z is not None else None, cmap=cmap if z is not None else None)
 
     # get correct axis labels
     x_label_text = value_key_text_plot(x_label, plot_mode=plot_mode)
@@ -2917,7 +2918,7 @@ def plot_correlation(x, y, x_label, y_label, z=None, z_label=None, fit_func=None
             z_label_text = value_key_text_plot(z_label, plot_mode=plot_mode)
         else:
             z_label_text = ""
-        fig.colorbar(plt.cm.ScalarMappable(norm=plt.Normalize(vmin=np.min(z), vmax=np.max(z)), cmap='viridis'), ax=ax, label=z_label_text).ax.yaxis.set_major_locator(MaxNLocator(nbins=3)) # make colorbar in full hue & not transparent, constraint 3 ticks
+        fig.colorbar(plt.cm.ScalarMappable(norm=plt.Normalize(vmin=np.min(z), vmax=np.max(z)), cmap=cmap), ax=ax, label=z_label_text).ax.yaxis.set_major_locator(MaxNLocator(nbins=3)) # make colorbar in full hue & not transparent, constraint 3 ticks
         #fig.colorbar(scatter, ax=ax, label=z_label_text)
 
     # plot fitting function if provided
@@ -3254,7 +3255,7 @@ def generate_ellipsoid_data(mean, cov, n_points=100, std_factor=2):
 
     
 
-def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_threshold=None, upper_threshold=None, target_plane=None, iso_energy_OSI_surface=None, interpolation=False, trajectory=None, all_trajectories=None, CTR_FR=None, exp_data=None, plot_ellipsoids=False, plot_exp_stems=False, circled_values=False, colorbar_mode=True, legend_mode=False, axes_mode=False, base_font_size=40, eye=dict(x=-1.8, y=1.6, z=0.8), show_mode=True, savename=None):
+def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_threshold=None, upper_threshold=None, target_plane=None, iso_energy_OSI_surface=None, interpolation=False, trajectory=None, all_trajectories=None, CTR_FR=None, exp_data=None, plot_ellipsoids=False, plot_exp_stems=False, circled_values=False, colorbar_mode=True, legend_mode=False, axes_mode=False, cmap = 'viridis', base_font_size=40, eye=dict(x=-1.8, y=1.6, z=0.8), show_mode=True, savename=None):
     # input
     # results is the dictionary of saved values
     # value_key is the quantity to display color coded
@@ -3276,6 +3277,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
     # colorbar_mode defines if the color bar should be plotted or not
     # legend_mode defines if the legend (CTR & FR) should be plotted or not
     # axes_mode defines if the major axes are plotted with thick lines
+    # cmap is the color map
     # base_font_size is the base font size
     # eye is the dictionary of the initial camera position
     
@@ -3422,7 +3424,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=5,
                 color=equi_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 showscale=bool(colorbar_mode),
                 **({"colorbar": (colorbar_mode if isinstance(colorbar_mode, dict) else {"title": {"text": value_key_text, "font": {"size": base_font_size*scaling_factor_colorbar_label}}, "tickmode":"auto", "nticks":3, "tickfont": {"size": base_font_size*scaling_factor_colorbar_numbers}, "len": 0.5, "thickness": 16, "x": 0.95, "y": 0.425, "yanchor": "middle"})} if colorbar_mode else {}), # "tickmode": "array", "tickvals": np.linspace(cmin, cmax, 3).tolist(), "ticktext": [f"{t:.2f}" for t in np.linspace(cmin, cmax, 3)]
                 cmin=cmin,
@@ -3472,7 +3474,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=5,
                 color=iso_OSI_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 colorbar=dict(title=dict(text='OSI', font=dict(size=base_font_size)), tickfont=dict(size=base_font_size)),
                 cmin=cmin,
                 cmax=cmax,
@@ -3517,7 +3519,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=3,
                 color=OSI_plot,
-                colorscale='Viridis',
+                colorscale=cmap,
                 showscale=bool(colorbar_mode),
                 **({"colorbar": (colorbar_mode if isinstance(colorbar_mode, dict) else {"title": {"text": value_key_text, "font": {"size": base_font_size*scaling_factor_colorbar_label}}, "tickmode":"auto", "nticks":3, "tickfont": {"size": base_font_size*scaling_factor_colorbar_numbers}, "len": 0.5, "thickness": 16, "x": 0.95, "y": 0.425, "yanchor": "middle"})} if colorbar_mode else {}), # "tickmode": "array", "tickvals": np.linspace(cmin, cmax, 3).tolist(), "ticktext": [f"{t:.2f}" for t in np.linspace(cmin, cmax, 3)]
                 cmin=cmin,
@@ -3551,7 +3553,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             isomax=cmax,  # OSI color range max
             opacity=0.1,
             surface_count=5,
-            colorscale='Viridis',
+            colorscale=cmap,
             hovertemplate='R_m: %{x}<br>E_L: %{y}<br>w_syn_e: %{z}<br>OSI: %{value:.2f}',
             colorbar=dict(title=dict(text='OSI', font=dict(size=base_font_size)), tickfont=dict(size=base_font_size*0.75)),
             name='Interpolated OSI Volume'))"""
@@ -3585,7 +3587,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=12,
                 color=[mean_osi],
-                colorscale='Viridis',
+                colorscale=cmap,
                 cmin=cmin,
                 cmax=cmax,
                 line=dict(color='black', width=2)
@@ -3620,7 +3622,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             isomax=upper_threshold,
             opacity=0.1,
             surface_count=5,
-            colorscale='Viridis',
+            colorscale=cmap,
             hovertemplate='R_m: %{x}<br>E_L: %{y}<br>w_syn_e: %{z}<br>',
             showlegend=False, 
             showscale=bool(colorbar_mode),
@@ -3643,7 +3645,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=5,
                 color=within_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 showscale=bool(colorbar_mode),
                 **({"colorbar": (colorbar_mode if isinstance(colorbar_mode, dict) else {"title": {"text": value_key_text, "font": {"size": base_font_size*scaling_factor_colorbar_label}}, "tickmode":"auto", "nticks":3, "tickfont": {"size": base_font_size*scaling_factor_colorbar_numbers}, "len": 0.5, "thickness": 16, "x": 0.95, "y": 0.425, "yanchor": "middle"})} if colorbar_mode else {}), # "tickmode": "array", "tickvals": np.linspace(cmin, cmax, 3).tolist(), "ticktext": [f"{t:.2f}" for t in np.linspace(cmin, cmax, 3)]
                 #colorbar=dict(title=dict(text=value_key_text, font=dict(size=base_font_size)), tickfont=dict(size=base_font_size*0.75)), 
@@ -3680,7 +3682,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=5,
                 color=below_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 showscale=bool(colorbar_mode),
                 **({"colorbar": (colorbar_mode if isinstance(colorbar_mode, dict) else {"title": {"text": value_key_text, "font": {"size": base_font_size*scaling_factor_colorbar_label}}, "tickmode":"auto", "nticks":3, "tickfont": {"size": base_font_size*scaling_factor_colorbar_numbers}, "len": 0.5, "thickness": 16, "x": 0.95, "y": 0.425, "yanchor": "middle"})} if colorbar_mode else {}), # "tickmode": "array", "tickvals": np.linspace(cmin, cmax, 3).tolist(), "ticktext": [f"{t:.2f}" for t in np.linspace(cmin, cmax, 3)]
                 cmin=cmin,
@@ -3701,7 +3703,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
             marker=dict(
                 size=5,
                 color=above_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 showscale=bool(colorbar_mode),
                 **({"colorbar": (colorbar_mode if isinstance(colorbar_mode, dict) else {"title": {"text": value_key_text, "font": {"size": base_font_size*scaling_factor_colorbar_label}}, "tickmode":"auto", "nticks":3, "tickfont": {"size": base_font_size*scaling_factor_colorbar_numbers}, "len": 0.5, "thickness": 16, "x": 0.95, "y": 0.425, "yanchor": "middle"})} if colorbar_mode else {}), # "tickmode": "array", "tickvals": np.linspace(cmin, cmax, 3).tolist(), "ticktext": [f"{t:.2f}" for t in np.linspace(cmin, cmax, 3)]
                 cmin=cmin,
@@ -3742,7 +3744,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
                 mode='lines',
                 line=dict(
                     color=traj_values,
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cmin=cmin,
                     cmax=cmax,
                     cauto=False,
@@ -3769,7 +3771,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
                 marker=dict(
                     size=8,
                     color=filtered_unique_local_maxima_values,  # use the filtered values for coloring
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cmin=cmin,
                     cmax=cmax,
                     cauto=False,
@@ -3842,7 +3844,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
                 key  = f"Rm_{info['closest_grid_point'][0]}_EL_{info['closest_grid_point'][1]}_wscale_{info['closest_grid_point'][2]}"
                 face = results[key].get('OSI', 0.0)
                 fig.add_trace(go.Scatter3d(x=[x], y=[y], z=[z_nS], mode='markers',
-                    marker=dict(size=3, color=[face], colorscale='Viridis', cmin=cmin, cmax=cmax, cauto=False),
+                    marker=dict(size=3, color=[face], colorscale=cmap, cmin=cmin, cmax=cmax, cauto=False),
                     hovertemplate='R_m: %{x}<br>E_L: %{y}<br>w_syn_e: %{z}<br>OSI: %{marker.color:.2f}<extra></extra>', showlegend=False))
         
             for x, y, z_raw, z_nS in zip(exp_data_FR[0], exp_data_FR[1], exp_data_FR[2], w_scale_FR):
@@ -3851,7 +3853,7 @@ def plot_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_t
                 face = results[key].get('OSI', 0.0)
                 fig.add_trace(go.Scatter3d(
                     x=[x], y=[y], z=[z_nS], mode='markers',
-                    marker=dict(size=3, color=[face], colorscale='Viridis', cmin=cmin, cmax=cmax, cauto=False),
+                    marker=dict(size=3, color=[face], colorscale=cmap, cmin=cmin, cmax=cmax, cauto=False),
                     hovertemplate='R_m: %{x}<br>E_L: %{y}<br>w_syn_e: %{z}<br>OSI: %{marker.color:.2f}<extra></extra>', showlegend=False))
         
         if plot_exp_stems is True:
@@ -4710,7 +4712,7 @@ def add_plane_fit_to_fig(fig, results, value_key, lower_threshold=None, upper_th
 
 
 
-def plot_2D_colored_surface(results, value_key, w_scale_constant, title, cmin=None, cmax=None, savename=None):
+def plot_2D_colored_surface(results, value_key, w_scale_constant, title, cmin=None, cmax=None, cmap = 'viridis', savename=None):
     # plot 2D surface for closest w_scale
     
     # input 
@@ -4718,6 +4720,7 @@ def plot_2D_colored_surface(results, value_key, w_scale_constant, title, cmin=No
     # value_key is the quantity to display color coded
     # w_scale_constant is the value of w_scale to be displayed
     # title is the title of the plot 
+    # cmap is the color map
     # cmin is the minimum value of the color code
     # cmax is the maximum value of the color code
     
@@ -4789,7 +4792,7 @@ def plot_2D_colored_surface(results, value_key, w_scale_constant, title, cmin=No
         z=Z_non_zero,
         x=R_m_values,
         y=E_L_values,
-        colorscale='Viridis',
+        colorscale=cmap,
         colorbar=dict(title=value_key_text), 
         hovertemplate='R_m: %{x}<br>E_L: %{y}<br>' + value_key + ': %{z}<br>',
         zmin=cmin,
@@ -4808,7 +4811,7 @@ def plot_2D_colored_surface(results, value_key, w_scale_constant, title, cmin=No
 
     return fig
 
-def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cmax=None, savename=None):
+def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cmax=None, cmap = 'viridis', savename=None):
     # plot 2D surface for closest w_scale as a mountain
     
     # input
@@ -4818,6 +4821,7 @@ def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cm
     # title is the title of the plot 
     # cmin is the minimum value of the color code
     # cmax is the maximum value of the color code
+    # cmap is the color map
 
     # output 
     # fig is the 3D plot
@@ -4871,7 +4875,7 @@ def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cm
         z=Z,
         x=R_m_values,
         y=E_L_values,
-        colorscale='Viridis',
+        colorscale=cmap,
         cmin=cmin,
         cmax=cmax,
         colorbar=dict(title=value_key_text),
@@ -4915,7 +4919,7 @@ def plot_2D_mountains(results, value_key, w_scale_constant, title, cmin=None, cm
 ############################ video plotting functions ############################
 
 
-def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, revealing=False, results=None, trajectory_value_key='OSI_per_energy', trajectory_cmin=None, trajectory_cmax=None, eye=dict(x=-2.2, y=2.2, z=0.8)):
+def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, revealing=False, results=None, trajectory_value_key='OSI_per_energy', trajectory_cmin=None, trajectory_cmax=None, cmap = 'viridis', eye=dict(x=-2.2, y=2.2, z=0.8)):
     # create a rotating video of the 3D grid around the z-axis which optionally animates a dot along a trajectory
     # if revealing=True, newly revealed trajectory segments are color-coded by trajectory_value_key
 
@@ -4929,6 +4933,7 @@ def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, re
     # results is the simulation results dictionary used to obtain trajectory values from coordinates
     # trajectory_value_key is the result key used to color the revealed trajectory
     # trajectory_cmin and trajectory_cmax optionally define the trajectory color scale
+    # cmap is the used colormap
     # eye is the dictionary of the initial camera position
 
     # output
@@ -4975,7 +4980,7 @@ def create_rotation_video(fig, savename, duration=2, fps=30, trajectory=None, re
             trajectory_cmax = float(np.nanmax(finite_values))
 
         norm_traj = Normalize(vmin=trajectory_cmin, vmax=trajectory_cmax, clip=True)
-        cmap_traj = plt.get_cmap('viridis')
+        cmap_traj = plt.get_cmap(cmap)
 
     # generate and save each frame
     frame_files = []
@@ -5459,12 +5464,13 @@ def plot_3d_data_ellipsoids(R_m, E_L, z, z_data_mode, savename=None):
 
 ############################ information calculation plotting functions ############################
 
-def plot_bin_sizes(binning_results, info_measure, figsize=(6, 5), ax=None, savename_mode=False):  #12, 8
+def plot_bin_sizes(binning_results, info_measure, cmap = 'viridis', figsize=(6, 5), ax=None, savename_mode=False):  #12, 8
     # plots heatmap of the different binning sizes
    
     # input
     # binning_results are the binning results
     # info_measure decides if MI or TE is plotted
+    # cmap is the used colormap
     # figsize sets figure size for standalone figures
     # ax assigns plot to existing axis
     # savename_mode is an optional mode to save figure
@@ -5493,7 +5499,7 @@ def plot_bin_sizes(binning_results, info_measure, figsize=(6, 5), ax=None, saven
         
         
     # main plotting part
-    sns.heatmap(info_pivot, ax=ax, cmap='viridis', cbar_kws={'label': label})
+    sns.heatmap(info_pivot, ax=ax, cmap=cmap, cbar_kws={'label': label})
     ax.set_xlabel('number of bins for rate')
     ax.set_ylabel('bin time (ms)')
     ax.set_title(description)
@@ -6926,11 +6932,12 @@ def plot_hidden_state_input_output(t_stim, w_e_0, w_e_signal, r_e_signal, spike_
 
     plt.show()
 
-def plot_bin_sizes_Zeldenrust(binning_results): 
+def plot_bin_sizes_Zeldenrust(binning_results, cmap='viridis'): 
     # plot results of different bin sizes (time & rate space)
     
     # input
     # binning_results is a list of different binning results
+    # cmap is the used colormap
     
     # prepare data for plotting
     df_binning_results = pd.DataFrame(binning_results, columns=['bin_time', 'bins_rate', 'mi_st_bin', 'mi_I_bin', 'mi_I_st_bin']) # create data frame for plotting
@@ -6939,7 +6946,7 @@ def plot_bin_sizes_Zeldenrust(binning_results):
     # plot bin sizes/numbers for MI spike train
     plt.figure(figsize=(12, 8))
     mi_pivot = df_binning_results.pivot(index='bin_time', columns='bins_rate', values='mi_st_bin')
-    sns.heatmap(mi_pivot, cmap='viridis', cbar_kws={'label': 'Mutual information / bits'})
+    sns.heatmap(mi_pivot, cmap=cmap, cbar_kws={'label': 'Mutual information / bits'})
     plt.title('Mutual information (MI) of hidden state and spike train heatmap')
     plt.xlabel('number of bins for conductance')
     plt.ylabel('bin time / ms')
@@ -6950,7 +6957,7 @@ def plot_bin_sizes_Zeldenrust(binning_results):
     # plot bin sizes/numbers for MI input
     plt.figure(figsize=(12, 8))
     te_pivot = df_binning_results.pivot(index='bin_time', columns='bins_rate', values='mi_I_bin')
-    sns.heatmap(te_pivot, cmap='viridis', cbar_kws={'label': 'Mutual information / bits'})
+    sns.heatmap(te_pivot, cmap=cmap, cbar_kws={'label': 'Mutual information / bits'})
     plt.title('Mutual information (MI) of hidden state and input heatmap')
     plt.xlabel('number of bins for conductance')
     plt.ylabel('bin time / ms')
@@ -6961,7 +6968,7 @@ def plot_bin_sizes_Zeldenrust(binning_results):
     # plot bin sizes/numbers for MI input spike train
     plt.figure(figsize=(12, 8))
     te_pivot = df_binning_results.pivot(index='bin_time', columns='bins_rate', values='mi_I_st_bin')
-    sns.heatmap(te_pivot, cmap='viridis', cbar_kws={'label': 'Mutual information / bits'})
+    sns.heatmap(te_pivot, cmap=cmap, cbar_kws={'label': 'Mutual information / bits'})
     plt.title('Mutual information (MI) of input and spike train heatmap')
     plt.xlabel('number of bins for conductance')
     plt.ylabel('bin time / ms')
@@ -7204,6 +7211,8 @@ def value_key_text_plot_Zeldenrust(value_key, plot_mode):
             value_key_text = '$FI$'
         elif value_key in ('E_tot', 'E_tot_1e9_ATP_per_s_list'):
             value_key_text = '$E_{\mathrm{tot}}$ ($10^{9}$ ATP/s)'
+        elif value_key in ('MI_per_energy', 'MI_calculated_per_energy_list', 'MI_FZ_per_energy_list'):
+            value_key_text = '$MI/E_{\mathrm{tot}}$\n(bits/($10^{9}$ ATP/s))'
         elif value_key in ('MICE', 'MICE_calculated_list', 'MICE_FZ_list'):
             value_key_text = '$CE_{MI}$ (bits/Hz)'
         elif value_key in ('MICE_per_energy', 'MICE_calculated_per_energy_list', 'MICE_FZ_per_energy_list'):
@@ -7237,7 +7246,7 @@ def value_key_text_plot_Zeldenrust(value_key, plot_mode):
         
     return value_key_text
 
-def plot_correlation_exc_inh(x1, x2, y1, y2, x_label, y_label, z1=None, z2=None, z_label=None, x3=None, y3=None, z3=None, inverted_x=None, xlim=None, log_log=False, colors=['red', 'blue'], transparency=0.5,  figsize=(4,3), ax=None, savename=None): 
+def plot_correlation_exc_inh(x1, x2, y1, y2, x_label, y_label, z1=None, z2=None, z_label=None, x3=None, y3=None, z3=None, inverted_x=None, xlim=None, log_log=False, colors=['red', 'blue'], cmap='viridis', transparency=0.5,  figsize=(4,3), ax=None, savename=None): 
     # plot correlation between two variables with optional fit and color coding
 
     # input
@@ -7251,6 +7260,7 @@ def plot_correlation_exc_inh(x1, x2, y1, y2, x_label, y_label, z1=None, z2=None,
     # xlim is an optional tuple of the x-axis limits
     # log_log s a boolean to enable loglog scaling if desired
     # color are the colors of exc & inh cells
+    # cmap is the color map
     # transparency sets the transparency of experimental data points by parameter alpha 
     # savename is a string filename to save the figure as .pdf
     
@@ -7279,14 +7289,14 @@ def plot_correlation_exc_inh(x1, x2, y1, y2, x_label, y_label, z1=None, z2=None,
             z_min = np.nanmin(z_all)
             z_max = np.nanmax(z_all)
             norm = Normalize(vmin=z_min, vmax=z_max)
-            cmap = 'viridis'
+            cmap = cmap
             
     # create scatter plot of x & y data with optional color code z
-    scatter = ax.scatter(x2, y2, s=50, alpha=transparency, label = 'inh cells', edgecolors=colors[1], linewidths=1.5, color=colors[1] if z2 is None else None, c=z2 if z2 is not None else None, cmap=cmap if z2 is not None else None, norm=norm if z2 is not None else None)
-    scatter = ax.scatter(x1, y1, s=50, alpha=transparency, label = 'exc cells', edgecolors=colors[0], linewidths=1.5, color=colors[0] if z1 is None else None, c=z1 if z1 is not None else None, cmap=cmap if z2 is not None else None, norm=norm if z1 is not None else None)
+    scatter = ax.scatter(x2, y2, s=25, alpha=transparency, label = 'inh cells', edgecolors=colors[1], linewidths=1.5, color=colors[1] if z2 is None else None, c=z2 if z2 is not None else None, cmap=cmap if z2 is not None else None, norm=norm if z2 is not None else None)
+    scatter = ax.scatter(x1, y1, s=25, alpha=transparency, label = 'exc cells', edgecolors=colors[0], linewidths=1.5, color=colors[0] if z1 is None else None, c=z1 if z1 is not None else None, cmap=cmap if z2 is not None else None, norm=norm if z1 is not None else None)
     #scatter = ax.scatter(x2, y2, s=50, alpha=transparency, label = 'inh cells', edgecolors='blue', linewidths=1.5, color='blue' if z2 is None else None, c=z2 if z2 is not None else None, cmap=cmap if z2 is not None else None, norm=norm if z2 is not None else None)
     if x3 and y3 is not None: 
-        scatter = ax.scatter(x3, y3, s=50, alpha=transparency, label = 'inh cells \nwith exc input', edgecolors='green', linewidths=1.5, color='green' if z3 is None else None, c=z3 if z3 is not None else None, cmap=cmap if z3 is not None else None, norm=norm if z3 is not None else None)
+        scatter = ax.scatter(x3, y3, s=25, alpha=transparency, label = 'inh cells \nwith exc input', edgecolors='green', linewidths=1.5, color='green' if z3 is None else None, c=z3 if z3 is not None else None, cmap=cmap if z3 is not None else None, norm=norm if z3 is not None else None)
         
     # get correct axis labels
     x_label_text = value_key_text_plot_Zeldenrust(x_label, plot_mode='correlation')
@@ -7339,7 +7349,7 @@ def plot_correlation_exc_inh(x1, x2, y1, y2, x_label, y_label, z1=None, z2=None,
 
 
 # 3D plotting functions for grid search
-def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_threshold=None, upper_threshold=None, target_plane=None, interpolation=False, trajectory=None, all_trajectories=None, CTR_FR=None, exp_data=None, exp_data_value_key=None, plot_ellipsoids=False, colors=['red', 'blue'], savename=None):
+def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=None, lower_threshold=None, upper_threshold=None, target_plane=None, interpolation=False, trajectory=None, all_trajectories=None, CTR_FR=None, exp_data=None, exp_data_value_key=None, plot_ellipsoids=False, colors=['red', 'blue'], cmap='viridis', savename=None):
     # input
     # results is the dictionary of saved values
     # value_key is the quantity to display color coded
@@ -7357,6 +7367,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
     # exp_data_value_key is the quantity of the experimental data to display color coded
     # plot_ellipsoids determines if the ellipsoid should be plotted
     # colors are the color of exc & inh cells
+    # cmap is the color map
     # savename is the name to save the grid as html file
 
     # output
@@ -7476,7 +7487,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
             marker=dict(
                 size=5,
                 color=equi_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 colorbar=dict(title=dict(text=value_key_text,font=dict(size=20)),tickfont=dict(size=15)),
                 cmin=cmin,
                 cmax=cmax,
@@ -7506,7 +7517,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
             isomax=upper_threshold,
             opacity=0.1,
             surface_count=5,
-            colorscale='Viridis',
+            colorscale=cmap,
             hovertemplate='R_m: %{x}<br>V_thresh: %{y}<br>tau_w_ad: %{z}<br>',
             colorbar=dict(title=dict(text=value_key_text, font=dict(size=20)), tickfont=dict(size=15))))
         
@@ -7523,7 +7534,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
             marker=dict(
                 size=5,
                 color=within_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 colorbar=dict(title=dict(text=value_key_text,font=dict(size=20)),tickfont=dict(size=15)),
                 cmin=cmin,
                 cmax=cmax,
@@ -7555,7 +7566,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
             marker=dict(
                 size=5,
                 color=below_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 colorbar=dict(title=dict(text=value_key_text,font=dict(size=20)),tickfont=dict(size=15)),
                 cmin=cmin,
                 cmax=cmax,
@@ -7573,7 +7584,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
             marker=dict(
                 size=5,
                 color=above_threshold_values,
-                colorscale='Viridis',
+                colorscale=cmap,
                 colorbar=dict(title=dict(text=value_key_text,font=dict(size=20)),tickfont=dict(size=15)),
                 cmin=cmin,
                 cmax=cmax,
@@ -7609,7 +7620,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
                 mode='lines',
                 line=dict(
                     color=traj_values,
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cmin=cmin,
                     cmax=cmax,
                     width=6),
@@ -7634,7 +7645,7 @@ def plot_Zeldenrust_interactive_3D(results, value_key, title, cmin=None, cmax=No
                 marker=dict(
                     size=8,
                     color=filtered_uniquV_threshocal_maxima_values,  # use the filtered values for coloring
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cmin=cmin,
                     cmax=cmax,
                     opacity=1.0),
@@ -7931,7 +7942,7 @@ def plot_pca_interactive_3D(scores, cell_type, pca, results_exc=None, results_in
             marker=dict(
                 size=6,
                 color=z_exc,                  # color by feature
-                colorscale='Viridis',
+                colorscale=cmap,
                 cmin=z_min,
                 cmax=z_max,
                 colorbar=dict(
@@ -7972,7 +7983,7 @@ def plot_pca_interactive_3D(scores, cell_type, pca, results_exc=None, results_in
             marker=dict(
                 size=6,
                 color=z_inh,                  # color by feature
-                colorscale='Viridis',
+                colorscale=cmap,
                 cmin=z_min,
                 cmax=z_max,
                 showscale=False,              # use shared colorbar from exc trace
@@ -8486,7 +8497,7 @@ def plot_grid_and_exp_interactive_3D(grid_data_exc=None, grid_data_inh=None, exp
             y=0.425,
             yanchor="middle")
     
-    def add_trace(data, is_exp, kind, celltype, base_color):
+    def add_trace(data, is_exp, kind, celltype, base_color, cmap = 'viridis'):
         if data is None:
             return
 
@@ -8557,7 +8568,7 @@ def plot_grid_and_exp_interactive_3D(grid_data_exc=None, grid_data_inh=None, exp
                     size=size,
                     color=vals_color[inside_mask],
                     cmin=cmin, cmax=cmax,
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cauto=cauto_flag,
                     showscale=False,
                     opacity=base_opacity,
@@ -8579,7 +8590,7 @@ def plot_grid_and_exp_interactive_3D(grid_data_exc=None, grid_data_inh=None, exp
                     size=size,
                     color=vals_color[outside_mask],
                     cmin=cmin, cmax=cmax,
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cauto=cauto_flag,
                     showscale=False,
                     opacity=base_opacity * outside_opacity_factor,
@@ -8643,7 +8654,7 @@ def plot_grid_and_exp_interactive_3D(grid_data_exc=None, grid_data_inh=None, exp
                 marker=dict(
                     size=1,
                     color=[cb_min, cb_max],
-                    colorscale='Viridis',
+                    colorscale=cmap,
                     cmin=cb_min,
                     cmax=cb_max,
                     cauto=not (cb_min is not None and cb_max is not None),
@@ -8806,7 +8817,7 @@ def plot_grid_and_exp_interactive_3D(grid_data_exc=None, grid_data_inh=None, exp
 
 # 3D matplotlib Zeldenrust plotting 
 
-def plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=None, results_analysis_PCA_analyzed_exc=None, results_analysis_PCA_analyzed_inh=None, exp_data_exc=None, exp_data_inh=None, value_key=None, normalization_mode="shared_axis", grid_axes=('pc1', 'pc2', 'pc3'), interpolation=False, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, base_font_size=40, elev=20, azim=120, figsize=(4,4), show_mode=True, ax=None, savename=None, dpi=250, cmap='viridis'):
+def plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=None, results_analysis_PCA_analyzed_exc=None, results_analysis_PCA_analyzed_inh=None, exp_data_exc=None, exp_data_inh=None, value_key=None, normalization_mode="shared_axis", grid_axes=('pc1', 'pc2', 'pc3'), interpolation=False, lower_threshold=None, upper_threshold=None, color_exc='coral', color_inh='darkcyan', cmap='viridis', grid_marker_size=4, exp_marker_size=6, title=None, colorbar_mode=True, legend_mode=False, axes_mode=False, base_font_size=40, elev=20, azim=120, figsize=(4,4), show_mode=True, ax=None, savename=None, dpi=250):
     # plot 3D visualization of grid and experimental data in the same space
     # input
     # grid_data_exc is a results dict (dict-of-dicts) for the excitatory simulated grid (or None)
@@ -8823,6 +8834,7 @@ def plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=None, resu
     # upper_threshold is the upper threshold for filtering and interpolation range, defaults to global max if None
     # color_exc is the outline or default color for excitatory data
     # color_inh is the outline or default color for inhibitory data
+    # cmap is the colormap used
     # grid_marker_size is marker size for grid points
     # exp_marker_size is marker size for experimental points
     # title is plot title
@@ -8836,7 +8848,7 @@ def plot_grid_and_exp_3D_matplotlib(grid_data_exc=None, grid_data_inh=None, resu
     # ax assigns plot to an existing axes, if None a new figure and axes are created
     # savename is the name to save the figure as pdf and png
     # dpi is the save resolution
-    # cmap is the colormap used
+    
     # output
     # fig is the matplotlib figure
     # ax is the matplotlib 3d axes
